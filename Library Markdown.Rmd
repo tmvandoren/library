@@ -1,0 +1,86 @@
+---
+title: "Untitled"
+author: "Taylor"
+date: "2024-11-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## I have a lot of books
+
+
+```{r necessities}
+library(ggplot2)
+library(kableExtra)
+library(tidyverse)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+setwd("/Users/taylorvandoren/Documents/Github/library")
+data <- read.csv("library.csv")
+```
+
+## Do some very light adjustments to the data
+
+```{r pressure}
+colnames(data) <- c("last", "first", "title", "published", "genre", "read", "length", "botm", "aard", "duplicates", "tbr", "rating")
+data$pub.fact <- as.factor(data$published)
+```
+
+## Make a graph
+
+``` {r read}
+ggplot(data, aes(x = published, y = length, color = read)) +
+  geom_point(shape = 16, size = 2, alpha = 0.3) +
+  geom_smooth(alpha = 0) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2") +
+  xlab("year published") +
+  ylab("number of books")
+
+ggplot(data, aes(x = published, color = read, fill = read)) +
+  geom_bar(position = "stack", alpha = 0.5) +
+  xlim(1800, 2024) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  xlab("year published") +
+  ylab("number of books")
+
+```
+
+## Table of genres
+
+``` {r authors}
+genres <- as.data.frame(table(data$genre))
+colnames(genres) <- c("genre", "frequency")
+genres <- genres[order(genres$frequency, decreasing = TRUE),]
+kable(genres)
+```
+
+## What is the probability that I have read a book while controlling for genre?
+### based only on my top 10 genres
+
+``` {r probability}
+
+top_ten <- genres[1:10,]
+genres <- top_ten$genre
+
+# change "read" variable in data to 1s and 0s
+data$read_mod <- ifelse(data$read == "y", 1, 0)
+data_mod <- filter(data, data$genre %in% genres)
+
+read_mod <- summary(glm(read_mod ~ genre, data = data_mod, family = "binomial"))
+print(read_mod)
+exp(read_mod$coefficients)
+
+```
+
+## What genres do I rate the highest
+
+``` {r ratings}
+
+summary(lm(rating ~ genre, data = data_mod))
+
+```

@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(kableExtra)
 library(tidyverse)
+library(viridis)
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 setwd("/Users/taylorvandoren/Documents/Github/library")
 data <- read.csv("library.csv")
@@ -37,7 +38,8 @@ ggplot(data, aes(x = published, y = length, color = read)) +
   theme_minimal() +
   scale_color_brewer(palette = "Dark2") +
   xlab("year published") +
-  ylab("number of books")
+  ylab("number of books") +
+  xlim(1850,2024)
 
 ggplot(data, aes(x = published, color = read, fill = read)) +
   geom_bar(position = "stack", alpha = 0.5) +
@@ -69,7 +71,7 @@ genres <- top_ten$genre
 
 # change "read" variable in data to 1s and 0s
 data$read_mod <- ifelse(data$read == "y", 1, 0)
-data_mod <- filter(data, data$genre %in% genres)
+data_mod <- filter(data, data$genre %in% top_ten$genre)
 
 read_mod <- summary(glm(read_mod ~ genre, data = data_mod, family = "binomial"))
 print(read_mod)
@@ -82,5 +84,9 @@ exp(read_mod$coefficients)
 ``` {r ratings}
 
 summary(lm(rating ~ genre, data = data_mod))
+ggplot(data_mod, aes(x = genre, y = rating, color = genre)) +
+  geom_violin() +
+  geom_jitter(shape = 1, alpha = 0.75) +
+  theme_classic()
 
 ```

@@ -1,7 +1,7 @@
 library(ggplot2)
 
-setwd("/Users/taylorvandoren/Desktop")
-data <- read.csv("Taylor van Doren's Library.csv")
+setwd("/Users/taylorvandoren/Documents/Github/library")
+data <- read.csv("library.csv")
 colnames(data) <- c("last", "first", "title", "published", "genre", "read", "length", "botm", "aard", "duplicates", "tbr", "rating")
 
 ggplot(data, aes(x = published, y = length, color = read)) +
